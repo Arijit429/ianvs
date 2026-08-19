@@ -276,13 +276,18 @@ class Rank:
             self._save_all()
             self._save_selected(test_cases, test_results)
 
-        if self.save_mode == "selected_only":
+        elif self.save_mode == "selected_only":
             self._save_selected(test_cases, test_results)
 
-        if self.save_mode == "selected_and_all_and_picture":
+        elif self.save_mode == "selected_and_all_and_picture":
             self._save_all()
             self._save_selected(test_cases, test_results)
             self._draw_pictures(test_cases, test_results)
+
+        else:
+            raise ValueError(
+                f"rank's save_mode({self.save_mode}) is not supported by save()."
+            )
 
     def plot(self):
         """
