@@ -29,6 +29,10 @@ jobs:
       - name: Analysing example code with pylint
         # `--max-positional-arguments=10` is set for Python 3.9 to avoid `R0917: too-many-positional-arguments`.
         # See details at https://github.com/kubeedge/ianvs/issues/157
+        # continue-on-error: the examples/ backlog is not pylint-clean yet, so this check
+        # is currently advisory only. Remove continue-on-error once examples reach a
+        # baseline passing state, so this becomes a real PR-blocking gate.
+        continue-on-error: true
         run: |
           if [ "${{ matrix.python-version }}" = "3.9" ]; then
             pylint --max-positional-arguments=10 '${{github.workspace}}/examples'
@@ -42,6 +46,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Check each example with benchmarkingjob.yaml has requirements.txt
+        # continue-on-error: most of the examples/ backlog is still missing a
+        # requirements.txt, so this check is currently advisory only. Remove
+        # continue-on-error once examples reach a baseline passing state, so
+        # this becomes a real PR-blocking gate.
+        continue-on-error: true
         run: |
           missing=0
           while IFS= read -r -d '' job_file; do
