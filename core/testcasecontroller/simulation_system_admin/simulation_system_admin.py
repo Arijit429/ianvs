@@ -33,17 +33,15 @@ def check_host_docker():
     if check_docker.returncode != 0:
         # trying to install docker
         LOGGER.info("trying to install docker")
-        curl_proc = subprocess.Popen(
-            ["curl", "-fsSL", "https://get.docker.com"], stdout=subprocess.PIPE)
-        try:
-            subprocess.run(
-                ["bash", "-s", "docker", "--mirror", "Aliyun"],
-                stdin=curl_proc.stdout, check=True)
-        except subprocess.CalledProcessError as err:
-            raise RuntimeError(f"install docker failed, error: {err}.") from err
-        finally:
-            curl_proc.stdout.close()
-            curl_proc.wait()
+        with subprocess.Popen(
+                ["curl", "-fsSL", "https://get.docker.com"],
+                stdout=subprocess.PIPE) as curl_proc:
+            try:
+                subprocess.run(
+                    ["bash", "-s", "docker", "--mirror", "Aliyun"],
+                    stdin=curl_proc.stdout, check=True)
+            except subprocess.CalledProcessError as err:
+                raise RuntimeError(f"install docker failed, error: {err}.") from err
 
         LOGGER.info("successfully installed docker")
 
@@ -162,18 +160,15 @@ def build_simulation_enviroment(simulation):
         "CLUSTER_NAME": str(simulation.cluster_name),
     })
 
-    curl_proc = subprocess.Popen(
-        ["curl", "https://raw.githubusercontent.com/kubeedge/sedna"
-                 "/master/scripts/installation/all-in-one.sh"],
-        stdout=subprocess.PIPE)
-    try:
-        subprocess.run(["bash", "-"], stdin=curl_proc.stdout,
-                       env=install_env, check=True)
-    except subprocess.CalledProcessError as err:
-        raise RuntimeError("The simulation enviroment build failed.") from err
-    finally:
-        curl_proc.stdout.close()
-        curl_proc.wait()
+    with subprocess.Popen(
+            ["curl", "https://raw.githubusercontent.com/kubeedge/sedna"
+                     "/master/scripts/installation/all-in-one.sh"],
+            stdout=subprocess.PIPE) as curl_proc:
+        try:
+            subprocess.run(["bash", "-"], stdin=curl_proc.stdout,
+                           env=install_env, check=True)
+        except subprocess.CalledProcessError as err:
+            raise RuntimeError("The simulation enviroment build failed.") from err
 
     LOGGER.info("Congratulation! The simulation enviroment build successful!")
 
@@ -186,13 +181,11 @@ def destory_simulation_enviroment(simulation):
     destroy_env = os.environ.copy()
     destroy_env["CLUSTER_NAME"] = str(simulation.cluster_name)
 
-    curl_proc = subprocess.Popen(
-        ["curl", "https://raw.githubusercontent.com/kubeedge/sedna"
-                 "/main/scripts/installation/all-in-one.sh"],
-        stdout=subprocess.PIPE)
-    result = subprocess.run(["bash", "/dev/stdin", "clean"],
-                            stdin=curl_proc.stdout, env=destroy_env, check=False)
-    curl_proc.stdout.close()
-    curl_proc.wait()
+    with subprocess.Popen(
+            ["curl", "https://raw.githubusercontent.com/kubeedge/sedna"
+                     "/main/scripts/installation/all-in-one.sh"],
+            stdout=subprocess.PIPE) as curl_proc:
+        result = subprocess.run(["bash", "/dev/stdin", "clean"],
+                                stdin=curl_proc.stdout, env=destroy_env, check=False)
 
     return result.returncode
